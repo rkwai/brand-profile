@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -28,14 +28,19 @@ export function VoiceProfileFlow() {
   const [voiceProfile, setVoiceProfile] = useState('')
   const [postNotes, setPostNotes] = useState('')
   const [generatedPost, setGeneratedPost] = useState('')
+  const [isGeneratingVoiceProfile, setIsGeneratingVoiceProfile] = useState(false)
 
   const generateVoiceProfile = async () => {
+    setIsGeneratingVoiceProfile(true)
     try {
       const response = await axios.post('/api/generate-voice-profile', { contentPillars, uvp })
       setVoiceProfile(response.data.voiceProfile)
+      setCurrentStep(currentStep + 1) // Move to the next step after generating
     } catch (error) {
       console.error('Error generating voice profile:', error)
       // Handle error (e.g., show error message to user)
+    } finally {
+      setIsGeneratingVoiceProfile(false)
     }
   }
 
@@ -49,13 +54,20 @@ export function VoiceProfileFlow() {
     }
   }
 
+  useEffect(() => {
+    if (currentStep === 3) {
+      generateVoiceProfile()
+    }
+  }, [currentStep])
+
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1)
       if (currentStep === 2) {
-        generateVoiceProfile()
+        setCurrentStep(currentStep + 1) // Move to the "Generating" step
       } else if (currentStep === 5) {
         generatePost()
+      } else {
+        setCurrentStep(currentStep + 1)
       }
     }
   }
@@ -198,7 +210,11 @@ export function VoiceProfileFlow() {
         <Button onClick={handleBack} disabled={currentStep === 0} className="bg-stone-200 text-stone-800 hover:bg-stone-300">
           Back
         </Button>
-        <Button onClick={handleNext} disabled={currentStep === steps.length - 1} className="bg-stone-700 hover:bg-stone-600 text-stone-100">
+        <Button 
+          onClick={handleNext} 
+          disabled={currentStep === steps.length - 1 || isGeneratingVoiceProfile} 
+          className="bg-stone-700 hover:bg-stone-600 text-stone-100"
+        >
           {currentStep === steps.length - 2 ? 'Finish' : 'Next'}
         </Button>
       </CardFooter>

@@ -1,18 +1,17 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
+import { AnthropicAPI } from '@/src/server/ai'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
     try {
       const { contentPillars, uvp } = req.body
 
-      // TODO: Implement actual voice profile generation logic
-      // This is a placeholder implementation
-      const voiceProfile = `Generated voice profile based on:
-        Content Pillars: ${contentPillars}
-        UVP: ${uvp}`
+      const anthropic = new AnthropicAPI()
+      const voiceProfile = await anthropic.generateVoiceProfile(contentPillars, uvp)
 
       res.status(200).json({ voiceProfile })
     } catch (error) {
+      console.error('Error generating voice profile:', error)
       res.status(500).json({ error: 'Error generating voice profile' })
     }
   } else {
