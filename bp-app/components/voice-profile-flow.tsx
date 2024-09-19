@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { CheckIcon } from 'lucide-react'
+import axios from 'axios'
 
 const steps = [
   "Welcome",
@@ -28,9 +29,34 @@ export function VoiceProfileFlow() {
   const [postNotes, setPostNotes] = useState('')
   const [generatedPost, setGeneratedPost] = useState('')
 
+  const generateVoiceProfile = async () => {
+    try {
+      const response = await axios.post('/api/generate-voice-profile', { contentPillars, uvp })
+      setVoiceProfile(response.data.voiceProfile)
+    } catch (error) {
+      console.error('Error generating voice profile:', error)
+      // Handle error (e.g., show error message to user)
+    }
+  }
+
+  const generatePost = async () => {
+    try {
+      const response = await axios.post('/api/generate-post', { voiceProfile, postNotes })
+      setGeneratedPost(response.data.generatedPost)
+    } catch (error) {
+      console.error('Error generating post:', error)
+      // Handle error (e.g., show error message to user)
+    }
+  }
+
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1)
+      if (currentStep === 2) {
+        generateVoiceProfile()
+      } else if (currentStep === 5) {
+        generatePost()
+      }
     }
   }
 
