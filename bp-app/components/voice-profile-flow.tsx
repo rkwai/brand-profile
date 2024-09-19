@@ -29,6 +29,7 @@ export function VoiceProfileFlow() {
   const [postNotes, setPostNotes] = useState('')
   const [generatedPost, setGeneratedPost] = useState('')
   const [isGeneratingVoiceProfile, setIsGeneratingVoiceProfile] = useState(false)
+  const [isGeneratingPost, setIsGeneratingPost] = useState(false)
 
   const generateVoiceProfile = async () => {
     setIsGeneratingVoiceProfile(true)
@@ -45,27 +46,31 @@ export function VoiceProfileFlow() {
   }
 
   const generatePost = async () => {
+    setIsGeneratingPost(true)
     try {
       const response = await axios.post('/api/generate-post', { voiceProfile, postNotes })
       setGeneratedPost(response.data.generatedPost)
+      setCurrentStep(currentStep + 1) // Move to the next step after generating
     } catch (error) {
       console.error('Error generating post:', error)
       // Handle error (e.g., show error message to user)
+    } finally {
+      setIsGeneratingPost(false)
     }
   }
 
   useEffect(() => {
     if (currentStep === 3) {
       generateVoiceProfile()
+    } else if (currentStep === 6) {
+      generatePost()
     }
   }, [currentStep])
 
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
-      if (currentStep === 2) {
+      if (currentStep === 2 || currentStep === 5) {
         setCurrentStep(currentStep + 1) // Move to the "Generating" step
-      } else if (currentStep === 5) {
-        generatePost()
       } else {
         setCurrentStep(currentStep + 1)
       }
@@ -212,7 +217,7 @@ export function VoiceProfileFlow() {
         </Button>
         <Button 
           onClick={handleNext} 
-          disabled={currentStep === steps.length - 1 || isGeneratingVoiceProfile} 
+          disabled={currentStep === steps.length - 1 || isGeneratingVoiceProfile || isGeneratingPost} 
           className="bg-stone-700 hover:bg-stone-600 text-stone-100"
         >
           {currentStep === steps.length - 2 ? 'Finish' : 'Next'}
