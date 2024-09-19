@@ -1,3 +1,4 @@
+/*
 import { createClient } from '@supabase/supabase-js'
 import { AnthropicAPI } from './ai'
 import { authMiddleware } from './auth'
@@ -7,7 +8,8 @@ const supabase = createClient(
   process.env.SUPABASE_URL!,
   process.env.SUPABASE_ANON_KEY!
 )
-const anthropic = new AnthropicAPI(process.env.ANTHROPIC_API_KEY!)
+
+const anthropic = new AnthropicAPI()
 
 // API endpoint for handling onboarding
 export async function handleOnboarding(req: Request, res: Response) {
@@ -49,3 +51,4 @@ export async function saveData(req: Request, res: Response) {
     }
   })
 }
+*/

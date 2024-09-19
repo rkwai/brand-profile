@@ -1,3 +1,5 @@
+
+/*
 import { createClient } from '@supabase/supabase-js'
 import { Request, Response, NextFunction } from 'express'
 import { User } from '@supabase/supabase-js'
@@ -33,6 +35,8 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
     req.user = user
     next()
   } catch (error) {
+    console.error('Error in authMiddleware:', error)
     res.status(401).json({ error: 'Invalid token' })
   }
 }
+*/
