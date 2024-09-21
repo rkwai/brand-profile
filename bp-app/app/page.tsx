@@ -1,8 +1,39 @@
 /* eslint-disable react/no-unescaped-entities */
 
-import Link from 'next/link'
+"use client";
+
+import { signInWithGoogle, signOut } from '@/src/server/auth'
+import { useEffect, useState } from 'react'
+import { createClient } from '@supabase/supabase-js'
+import { User } from '@supabase/supabase-js'
+
+// Create a Supabase client
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
 
 export default function Home() {
+  const [user, setUser] = useState<User | null>(null)
+
+  useEffect(() => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null)
+    })
+
+    return () => {
+      authListener.subscription.unsubscribe()
+    }
+  }, [])
+
+  const handleSignIn = async () => {
+    await signInWithGoogle()
+  }
+
+  const handleSignOut = async () => {
+    await signOut()
+  }
+
   return (
     <main className="min-h-screen bg-gray-100 text-gray-900">
       <div className="container mx-auto px-4 py-12">
@@ -28,10 +59,15 @@ export default function Home() {
 
         {/* Add more sections here based on the markdown content */}
 
-        <div className="text-center">
-          <Link href="/create-profile" className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-            Get Started Now
-          </Link>
+        <div className="text-center mt-8">
+          {user ? (
+            <div>
+              <p>Welcome, {user.email}</p>
+              <button onClick={handleSignOut} className="bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors mt-2">Sign Out</button>
+            </div>
+          ) : (
+            <button onClick={handleSignIn} className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors">Sign In with Google</button>
+          )}
         </div>
       </div>
     </main>

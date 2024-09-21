@@ -1,5 +1,3 @@
-
-/*
 import { createClient } from '@supabase/supabase-js'
 import { Request, Response, NextFunction } from 'express'
 import { User } from '@supabase/supabase-js'
@@ -13,13 +11,9 @@ declare global {
   }
 }
 
-if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
-  throw new Error('Missing Supabase environment variables');
-}
-
 const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
 export async function authMiddleware(req: Request, res: Response, next: NextFunction) {
@@ -39,4 +33,23 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
     res.status(401).json({ error: 'Invalid token' })
   }
 }
-*/
+
+export async function signInWithGoogle() {
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+  })
+
+  if (error) {
+    console.error('Error signing in with Google:', error)
+    return null
+  }
+
+  return data
+}
+
+export async function signOut() {
+  const { error } = await supabase.auth.signOut()
+  if (error) {
+    console.error('Error signing out:', error)
+  }
+}
