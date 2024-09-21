@@ -24,7 +24,7 @@ export default function CreateProfile() {
   }, [supabase, router])
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return <div className="flex justify-center items-center flex-grow">Loading...</div>
   }
 
   return (
