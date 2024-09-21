@@ -1,48 +1,8 @@
-import { createClient } from '@supabase/supabase-js'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 
-// Remove the Express-related imports and type declarations as they're not needed in a Next.js app
-
-const createServerSupabaseClient = () => {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
-}
-
-export async function signInWithEmail(email: string, password: string) {
-  const supabase = createServerSupabaseClient()
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  })
-
-  if (error) {
-    console.error('Error signing in with email:', error)
-    return null
-  }
-
-  return data
-}
-
-export async function signUpWithEmail(email: string, password: string) {
-  const supabase = createServerSupabaseClient()
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-  })
-
-  if (error) {
-    console.error('Error signing up with email:', error)
-    return null
-  }
-
-  return data
-}
-
 export async function getSession() {
-  const supabase = createClientComponentClient()
+  const supabase = createServerComponentClient({ cookies })
   try {
     const {
       data: { session }
@@ -55,7 +15,7 @@ export async function getSession() {
 }
 
 export async function getUserDetails() {
-  const supabase = createClientComponentClient()
+  const supabase = createServerComponentClient({ cookies })
   try {
     const { data: userDetails } = await supabase
       .from('users')
@@ -69,7 +29,7 @@ export async function getUserDetails() {
 }
 
 export async function getSubscription() {
-  const supabase = createClientComponentClient()
+  const supabase = createServerComponentClient({ cookies })
   try {
     const { data: subscription } = await supabase
       .from('subscriptions')
@@ -83,5 +43,3 @@ export async function getSubscription() {
     return null
   }
 }
-
-// Remove the authMiddleware function as it's not typically used in Next.js apps

@@ -2,44 +2,13 @@
 
 "use client";
 
-import { useEffect, useState } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useRouter } from 'next/navigation'
-import { User } from '@supabase/supabase-js'
-import Link from 'next/link'
 
 export default function Home() {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
   const router = useRouter()
-  const supabase = createClientComponentClient()
 
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
-      setLoading(false)
-    }
-
-    getUser()
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN') {
-        setUser(session?.user ?? null)
-        router.refresh()
-      } else if (event === 'SIGNED_OUT') {
-        setUser(null)
-        router.refresh()
-      }
-    })
-
-    return () => {
-      subscription.unsubscribe()
-    }
-  }, [supabase, router])
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut()
+  const handleCreateProfile = () => {
+    router.push('/create-profile')
   }
 
   return (
@@ -68,19 +37,12 @@ export default function Home() {
         {/* Add more sections here based on the markdown content */}
 
         <div className="text-center mt-8">
-          {loading ? (
-            <p>Loading...</p>
-          ) : user ? (
-            <div>
-              <p>Welcome, {user.email}</p>
-              <button onClick={handleSignOut} className="bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors mt-2">Sign Out</button>
-            </div>
-          ) : (
-            <div className="space-x-4">
-              <Link href="/signin" className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors">Sign In</Link>
-              <Link href="/signup" className="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition-colors">Sign Up</Link>
-            </div>
-          )}
+          <button
+            onClick={handleCreateProfile}
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors text-lg"
+          >
+            Create Your Voice
+          </button>
         </div>
       </div>
     </main>

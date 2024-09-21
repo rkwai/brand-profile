@@ -1,14 +1,11 @@
 import './globals.css'
-import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import Header from '../components/Header'
-import Footer from '../components/Footer'
 
 const inter = Inter({ subsets: ['latin'] })
 
-export const metadata: Metadata = {
-  title: 'Brand Voice Profile Creator',
-  description: 'Create your Brand Voice Profile and let LLMs write like you',
+export const metadata = {
+  title: 'Brand Voice Profile',
+  description: 'Create your brand voice profile',
 }
 
 export default function RootLayout({
@@ -18,13 +15,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <Header />
-        <main className="min-h-screen bg-gray-100">
-          {children}
-        </main>
-        <Footer />
-      </body>
+      <body className={inter.className}>{children}</body>
     </html>
   )
 }
