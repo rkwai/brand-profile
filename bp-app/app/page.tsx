@@ -2,36 +2,44 @@
 
 "use client";
 
-import { signInWithGoogle, signOut } from '@/src/server/auth'
 import { useEffect, useState } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { useRouter } from 'next/navigation'
 import { User } from '@supabase/supabase-js'
-
-// Create a Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import Link from 'next/link'
 
 export default function Home() {
   const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+  const router = useRouter()
+  const supabase = createClientComponentClient()
 
   useEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null)
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+      setLoading(false)
+    }
+
+    getUser()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN') {
+        setUser(session?.user ?? null)
+        router.refresh()
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null)
+        router.refresh()
+      }
     })
 
     return () => {
-      authListener.subscription.unsubscribe()
+      subscription.unsubscribe()
     }
-  }, [])
-
-  const handleSignIn = async () => {
-    await signInWithGoogle()
-  }
+  }, [supabase, router])
 
   const handleSignOut = async () => {
-    await signOut()
+    await supabase.auth.signOut()
   }
 
   return (
@@ -60,13 +68,18 @@ export default function Home() {
         {/* Add more sections here based on the markdown content */}
 
         <div className="text-center mt-8">
-          {user ? (
+          {loading ? (
+            <p>Loading...</p>
+          ) : user ? (
             <div>
               <p>Welcome, {user.email}</p>
               <button onClick={handleSignOut} className="bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors mt-2">Sign Out</button>
             </div>
           ) : (
-            <button onClick={handleSignIn} className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors">Sign In with Google</button>
+            <div className="space-x-4">
+              <Link href="/signin" className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors">Sign In</Link>
+              <Link href="/signup" className="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition-colors">Sign Up</Link>
+            </div>
           )}
         </div>
       </div>
