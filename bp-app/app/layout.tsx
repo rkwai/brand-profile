@@ -7,7 +7,7 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
   title: 'Brand Voice Profile',
-  description: 'Create your brand voice profile',
+  description: 'Create and manage your brand voice profile',
 }
 
 export default function RootLayout({
@@ -17,9 +17,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} flex flex-col min-h-screen`}>
+      <body className={inter.className}>
         <Header />
-        <main className="flex-grow">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {children}
         </main>
         <Footer />
