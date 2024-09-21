@@ -24,11 +24,11 @@ export default function CreateProfile() {
   }, [supabase, router])
 
   if (isLoading) {
-    return <div className="flex justify-center items-center flex-grow">Loading...</div>
+    return <div className="flex justify-center items-center h-screen">Loading...</div>
   }
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="h-screen flex items-center justify-center">
       <VoiceProfileFlow />
     </div>
   )
