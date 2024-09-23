@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { CheckIcon, ArrowRightIcon } from 'lucide-react'
 import axios from 'axios'
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { AlertCircle } from "lucide-react"
 
 const steps = [
   "Welcome",
@@ -29,16 +31,18 @@ export function VoiceProfileFlow() {
   const [generatedPost, setGeneratedPost] = useState('')
   const [isGeneratingVoiceProfile, setIsGeneratingVoiceProfile] = useState(false)
   const [isGeneratingPost, setIsGeneratingPost] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const generateVoiceProfile = async () => {
     setIsGeneratingVoiceProfile(true)
+    setError(null)
     try {
       const response = await axios.post('/api/generate-voice-profile', { contentPillars, uvp })
       setVoiceProfile(response.data.voiceProfile)
-      setCurrentStep(currentStep + 1) // Move to the next step after generating
+      setCurrentStep(currentStep + 1)
     } catch (error) {
       console.error('Error generating voice profile:', error)
-      // Handle error (e.g., show error message to user)
+      setError("Oops! Our AI had a bit of a brain freeze. 🧊🧠 Remember, we're in beta! Why not take a step back and try again?")
     } finally {
       setIsGeneratingVoiceProfile(false)
     }
@@ -46,13 +50,14 @@ export function VoiceProfileFlow() {
 
   const generatePost = async () => {
     setIsGeneratingPost(true)
+    setError(null)
     try {
       const response = await axios.post('/api/generate-post', { voiceProfile, postNotes })
       setGeneratedPost(response.data.generatedPost)
-      setCurrentStep(currentStep + 1) // Move to the next step after generating
+      setCurrentStep(currentStep + 1)
     } catch (error) {
       console.error('Error generating post:', error)
-      // Handle error (e.g., show error message to user)
+      setError("Uh-oh! Our AI writer got a case of writer's block. 📝😅 Don't worry, it happens to the best of us! How about we take a step back and give it another shot?")
     } finally {
       setIsGeneratingPost(false)
     }
@@ -79,6 +84,7 @@ export function VoiceProfileFlow() {
   const handleBack = () => {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1)
+      setError(null) // Clear any existing error when going back
     }
   }
 
@@ -133,12 +139,22 @@ export function VoiceProfileFlow() {
         return (
           <div className="text-center h-full flex flex-col justify-center items-center space-y-6">
             <h3 className="text-2xl font-semibold text-stone-800">Generating Your Voice Profile</h3>
-            <p className="mb-4 text-stone-600">Please wait while we create your personalized voice profile...</p>
-            <div className="w-full max-w-md">
-              <div className="animate-pulse bg-stone-300 h-2 w-full rounded-full">
-                <div className="bg-stone-600 h-2 rounded-full" style={{ width: '60%' }}></div>
-              </div>
-            </div>
+            {error ? (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Oops!</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            ) : (
+              <>
+                <p className="mb-4 text-stone-600">Please wait while we create your personalized voice profile...</p>
+                <div className="w-full max-w-md">
+                  <div className="animate-pulse bg-stone-300 h-2 w-full rounded-full">
+                    <div className="bg-stone-600 h-2 rounded-full" style={{ width: '60%' }}></div>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         )
       case 4:
@@ -178,12 +194,22 @@ export function VoiceProfileFlow() {
         return (
           <div className="text-center h-full flex flex-col justify-center items-center space-y-6">
             <h3 className="text-2xl font-semibold text-stone-800">Generating Your Post</h3>
-            <p className="mb-4 text-stone-600">Please wait while we generate your post...</p>
-            <div className="w-full max-w-md">
-              <div className="animate-pulse bg-stone-300 h-2 w-full rounded-full">
-                <div className="bg-stone-600 h-2 rounded-full" style={{ width: '60%' }}></div>
-              </div>
-            </div>
+            {error ? (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Uh-oh!</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            ) : (
+              <>
+                <p className="mb-4 text-stone-600">Please wait while we generate your post...</p>
+                <div className="w-full max-w-md">
+                  <div className="animate-pulse bg-stone-300 h-2 w-full rounded-full">
+                    <div className="bg-stone-600 h-2 rounded-full" style={{ width: '60%' }}></div>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         )
       case 7:
@@ -251,7 +277,7 @@ export function VoiceProfileFlow() {
       <CardFooter className="flex justify-between border-t border-stone-200 pt-4 sticky bottom-0 bg-stone-100">
         <Button 
           onClick={handleBack} 
-          disabled={currentStep === 0} 
+          disabled={currentStep === 0 || isGeneratingVoiceProfile || isGeneratingPost} 
           className="bg-stone-200 text-stone-800 hover:bg-stone-300 px-6 py-2 rounded-full"
         >
           Back
